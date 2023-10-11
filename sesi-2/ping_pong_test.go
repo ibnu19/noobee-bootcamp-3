@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type PlayerX struct {
+type Player struct {
 	Name string
 	Hit  int
 }
@@ -15,27 +15,27 @@ type PlayerX struct {
 const BreakPoints int = 11
 
 func TestPingPongApp(t *testing.T) {
-	ping := make(chan *PlayerX)
-	pong := make(chan *PlayerX)
-	isDone := make(chan *PlayerX)
+	ping := make(chan *Player)
+	pong := make(chan *Player)
+	isDone := make(chan *Player)
 	numChan := make(chan int)
 
-	A := PlayerX{Name: "Player A", Hit: 0}
-	B := PlayerX{Name: "Player B", Hit: 0}
+	A := Player{Name: "Player A", Hit: 0}
+	B := Player{Name: "Player B", Hit: 0}
 
 	// Player A
 	go pinger(ping, pong, isDone, &A, numChan)
 	// Player B
 	go ponger(ping, pong, isDone, &B, numChan)
 
-	ping <- new(PlayerX)
+	ping <- new(Player)
 	numChan <- 1
 
-	FinishX(numChan, isDone)
+	Finish(numChan, isDone)
 
 }
 
-func pinger(ping, pong, done chan *PlayerX, p *PlayerX, numchan chan int) {
+func pinger(ping, pong, done chan *Player, p *Player, numchan chan int) {
 	rand.NewSource(time.Now().UnixNano())
 
 	for a := range ping {
@@ -57,7 +57,7 @@ func pinger(ping, pong, done chan *PlayerX, p *PlayerX, numchan chan int) {
 	}
 }
 
-func ponger(ping, pong, done chan *PlayerX, p *PlayerX, numchan chan int) {
+func ponger(ping, pong, done chan *Player, p *Player, numchan chan int) {
 	rand.NewSource(time.Now().UnixNano())
 
 	for b := range pong {
@@ -79,14 +79,14 @@ func ponger(ping, pong, done chan *PlayerX, p *PlayerX, numchan chan int) {
 	}
 }
 
-func printPlayer(num int, p *PlayerX) {
+func printPlayer(num int, p *Player) {
 	action := ThrowAction(p.Name)
 
 	fmt.Println(p.Name, action, p.Hit, "counter ke", num)
 	time.Sleep(time.Second)
 }
 
-func FinishX(numchan chan int, done chan *PlayerX) {
+func Finish(numchan chan int, done chan *Player) {
 	for d := range done {
 		action := ThrowAction(d.Name)
 		for num := range numchan {
