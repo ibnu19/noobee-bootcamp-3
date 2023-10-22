@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 )
 
 var path = "./"
@@ -22,6 +23,7 @@ func main() {
 }
 
 func RunApplication() {
+	start := time.Now()
 	output, err := readFile(pathFile)
 	if err != nil {
 		panic(err)
@@ -33,6 +35,8 @@ func RunApplication() {
 	if <-isDone {
 		log.Println("Change currency is done...")
 	}
+
+	log.Println("Duration prosess:", time.Since(start).Seconds())
 }
 
 // Read json file
@@ -77,6 +81,7 @@ func changeCurrencyToIDR(dataCh <-chan User) <-chan User {
 
 // Write new file with content name as file name
 func writeFile(dataCh <-chan User) <-chan bool {
+	counter := 0
 	err := os.Mkdir("users", 7666)
 	CheckError(err)
 
@@ -89,7 +94,10 @@ func writeFile(dataCh <-chan User) <-chan bool {
 			userByte, err := json.Marshal(data)
 			CheckError(err)
 			err = os.WriteFile(path+"users/"+data.Name+".json", userByte, 0666)
-			CheckError(err)
+
+			if !CheckError(err) {
+				counter = counter + 1
+			}
 
 			wg.Done()
 		}(data)
@@ -102,6 +110,7 @@ func writeFile(dataCh <-chan User) <-chan bool {
 
 	}()
 
+	log.Println(counter)
 	return isDone
 }
 
