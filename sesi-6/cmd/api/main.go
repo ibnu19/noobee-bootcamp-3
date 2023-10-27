@@ -2,32 +2,42 @@ package main
 
 import (
 	"log"
+	"sesi-6/app/product"
 	"sesi-6/config"
 	"sesi-6/pkg/database"
+	"sesi-6/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
+	router := fiber.New(fiber.Config{
+		AppName: "Product Services",
+	})
+
+	validate := utils.NewValidator()
 
 	err := config.LoadConfig("./config/config.yaml")
 	if err != nil {
-		panic(err)
+		log.Println("error to try loadconfig with err :", err.Error())
 	}
 
-	db, err := database.ConnectPostgres(config.Cfg.DB)
+	dbGORM, err := database.ConnectGORM(config.Cfg.DB)
 	if err != nil {
-		panic(err)
+		log.Println("cannot connect database")
 	}
 
-	if db != nil {
-		log.Println("conncet database")
+	dbSQLX, err := database.ConnectSQLX(config.Cfg.DB)
+	if err != nil {
+		log.Println("cannot connect database")
 	}
 
-	router := fiber.New(fiber.Config{
-		Prefork: true,
-		AppName: "Product Service",
-	})
+	db := database.ConnDB{
+		Gorm: dbGORM,
+		SqlX: dbSQLX,
+	}
+
+	product.RegisterProductService(router, validate, db)
 
 	router.Listen(config.Cfg.App.Port)
 }

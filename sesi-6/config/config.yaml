@@ -7,3 +7,4 @@ db:
   user: "postgres"
   pass: "admin123"
   name: "noobeeid"
+
