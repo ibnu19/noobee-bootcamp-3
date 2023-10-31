@@ -1,0 +1,9 @@
+app:
+  port : ":8080"
+
+email:
+  config_smtp_host : "smtp.gmail.com"
+  config_smtp_port : 587
+  config_sender_name : "Admin NoobeeID <jalesveva.book@gmail.com>"
+  config_auth_email : "jalesveva.book@gmail.com"
+  config_auth_password : "ywvp astx fisz wnzc"
